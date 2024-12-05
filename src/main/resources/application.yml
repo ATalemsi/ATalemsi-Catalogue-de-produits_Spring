@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: product-management
+  profiles:
+    active: dev
+
+server:
+  port: 8080

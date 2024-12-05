@@ -1,0 +1,63 @@
+services:
+  # Development DB service
+  dev-db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: dev_db_product_managements
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+
+  # Production DB service
+  prod-db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: prod_db_product_managements
+      MYSQL_USER: prod_user
+      MYSQL_PASSWORD: prod_password
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+
+  # Spring Boot application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev  # Ensure this matches the dev profile
+    ports:
+      - "9090:9090"
+    depends_on:
+      - dev-db  # Ensure that app waits for dev-db to be ready
+    networks:
+      - app-network
+
+
+    # Adminer for Development DB
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: dev-db # Default connection to the dev-db database
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "8080:80" # Access phpMyAdmin at http://localhost:8080
+    networks:
+      - app-network
+    depends_on:
+      - dev-db
+      - prod-db
+
+
+networks:
+  app-network:
+    driver: bridge

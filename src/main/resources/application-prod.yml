@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://prod-db:3306/prod_db_product_managements
+    username: root
+    password:
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+
+logging:
+  level:
+    root: warn
+
+server:
+  error:
+    include-message: always
