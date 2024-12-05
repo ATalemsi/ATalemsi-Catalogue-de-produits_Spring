@@ -1,4 +1,16 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev  # Ensure this matches the dev profile
+    ports:
+      - "8080:8080" # Access Project at http://localhost:8080
+    depends_on:
+      - dev-db  # Ensure that app waits for dev-db to be ready
+    networks:
+      - app-network
   # Development DB service
   dev-db:
     image: mariadb:latest
@@ -11,8 +23,6 @@ services:
       - "3306:3306"
     networks:
       - app-network
-
-
   # Production DB service
   prod-db:
     image: mariadb:latest
@@ -27,18 +37,7 @@ services:
       - app-network
 
   # Spring Boot application
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev  # Ensure this matches the dev profile
-    ports:
-      - "9090:9090"
-    depends_on:
-      - dev-db  # Ensure that app waits for dev-db to be ready
-    networks:
-      - app-network
+
 
 
     # Adminer for Development DB
@@ -50,12 +49,11 @@ services:
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: root_password
     ports:
-      - "8080:80" # Access phpMyAdmin at http://localhost:8080
+      - "8081:80" # Access phpMyAdmin at http://localhost:8081
     networks:
       - app-network
     depends_on:
       - dev-db
-      - prod-db
 
 
 networks:

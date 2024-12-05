@@ -14,4 +14,5 @@ public class UserResponseDto {
     private String login;
     private Boolean active;
     private UserRole role;
+    private String sessionId;
 }

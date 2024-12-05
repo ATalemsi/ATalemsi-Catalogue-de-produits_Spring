@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/product_managementV2-0.0.1-SNAPSHOT.jar product-management.jar
 
 # Expose the port your Spring Boot app will run on
-EXPOSE 9090
+EXPOSE 8080
 
 # Run the app when the container starts
 ENTRYPOINT ["java", "-jar", "product-management.jar"]

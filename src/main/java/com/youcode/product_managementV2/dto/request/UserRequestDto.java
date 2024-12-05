@@ -22,5 +22,5 @@ public class UserRequestDto {
     private Boolean active;
 
     @NotNull(message = "Roles cannot be null")
-    private Long roleId; // Ensure this is present
+    private String roleName; // Ensure this is present
 }
