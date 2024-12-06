@@ -11,6 +11,7 @@ services:
       - dev-db  # Ensure that app waits for dev-db to be ready
     networks:
       - app-network
+
   # Development DB service
   dev-db:
     image: mariadb:latest
@@ -21,8 +22,11 @@ services:
       MYSQL_PASSWORD: dev_password
     ports:
       - "3306:3306"
+    volumes:
+      - dev-db-data:/var/lib/mysql  # Corrected volume mapping
     networks:
       - app-network
+
   # Production DB service
   prod-db:
     image: mariadb:latest
@@ -33,19 +37,17 @@ services:
       MYSQL_PASSWORD: prod_password
     ports:
       - "3307:3306"
+    volumes:
+      - prod-db-data:/var/lib/mysql  # Added volume mapping for production
     networks:
       - app-network
 
-  # Spring Boot application
-
-
-
-    # Adminer for Development DB
+  # Adminer for Development DB
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-      PMA_HOST: dev-db # Default connection to the dev-db database
+      PMA_HOST: dev-db  # Default connection to the dev-db database
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: root_password
     ports:
@@ -55,6 +57,11 @@ services:
     depends_on:
       - dev-db
 
+volumes:
+  dev-db-data:
+    driver: local  # Volume for persistent storage for dev-db
+  prod-db-data:
+    driver: local  # Volume for persistent storage for prod-db
 
 networks:
   app-network:

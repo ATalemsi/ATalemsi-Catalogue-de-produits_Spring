@@ -37,14 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").permitAll()// Permit access to auth routes
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/api/auth/login")   // Custom login page (redirect to your login page after registration)
-                        .permitAll()
-                        .failureUrl("/api/auth/login?error=true")  // If login fails, show error on login page
-                )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
-                        .logoutSuccessUrl("/api/auth/login")  // Redirect to login page on logout
                         .permitAll()
                 );
         return http.build();

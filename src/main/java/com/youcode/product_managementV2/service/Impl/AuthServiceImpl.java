@@ -63,7 +63,6 @@ public class AuthServiceImpl implements UserService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userRequestDto.getLogin(), userRequestDto.getPassword());
 
-
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(userRequestDto.getLogin());
