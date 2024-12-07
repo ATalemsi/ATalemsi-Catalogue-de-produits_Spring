@@ -68,6 +68,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return active != null && active; // Use the `active` field
+        return active != null && active;
     }
 }

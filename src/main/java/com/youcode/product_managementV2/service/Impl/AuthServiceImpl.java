@@ -9,9 +9,12 @@ import com.youcode.product_managementV2.repository.UserRepository;
 import com.youcode.product_managementV2.repository.UserRoleRepository;
 import com.youcode.product_managementV2.service.Interface.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +24,7 @@ import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,25 +63,39 @@ public class AuthServiceImpl implements UserService {
 
     @Override
     public UserResponseDto login(UserRequestDto userRequestDto) {
+        try {
+            // Create authentication token with username and password from the request
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userRequestDto.getLogin(), userRequestDto.getPassword());
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userRequestDto.getLogin(), userRequestDto.getPassword());
+            // Authenticate the user using authentication manager
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            // Set the authentication in the security context
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userRequestDto.getLogin());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userRequestDto.getLogin());
 
-        User user = userRepository.findByLogin(userRequestDto.getLogin())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + userRequestDto.getLogin()));
+            User user = userRepository.findByLogin(userRequestDto.getLogin())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + userRequestDto.getLogin()));
 
+            String sessionId = httpSession.getId();
+            httpSession.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-        String sessionId = httpSession.getId();
+            log.info("User logged in successfully: {}", sessionId);
 
-        UserResponseDto userResponseDto = userMapper.toResponseDto(user);
-        userResponseDto.setSessionId(sessionId);
+            System.out.println("User logged in successfully: {"+sessionId+"}");
 
-        return userResponseDto;
+            UserResponseDto userResponseDto = userMapper.toResponseDto(user);
+            userResponseDto.setSessionId(sessionId);
+
+            return userResponseDto;
+        } catch (Exception e) {
+            log.error("Login failed for user: {}. Error: {}", userRequestDto.getLogin(), e.getMessage());
+            throw new IllegalArgumentException("Invalid credentials");
+        }
     }
+
 
     @Override
     public UserResponseDto getUserById(Long id) {
@@ -85,4 +103,6 @@ public class AuthServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
         return userMapper.toResponseDto(user);
     }
+
+
 }
