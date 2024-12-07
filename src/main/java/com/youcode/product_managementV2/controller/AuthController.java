@@ -55,9 +55,9 @@ public class AuthController {
         if (request.getSession(false) == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No active session found.");
         }
-        // Invalidate the session and clear security context
-        SecurityContextHolder.clearContext();  // Clear the security context
-        request.getSession().invalidate();     // Invalidate the session
+
+        SecurityContextHolder.clearContext();
+        request.getSession().invalidate();
 
         log.info("User logged out successfully.");
         return ResponseEntity.ok("Successfully logged out");

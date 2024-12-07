@@ -4,6 +4,7 @@ import com.youcode.product_managementV2.Entity.User;
 import com.youcode.product_managementV2.Entity.UserRole;
 import com.youcode.product_managementV2.dto.request.UserRequestDto;
 import com.youcode.product_managementV2.dto.response.UserResponseDto;
+import com.youcode.product_managementV2.dto.update.UserRoleUpdateDto;
 import com.youcode.product_managementV2.mapper.UserMapper;
 import com.youcode.product_managementV2.repository.UserRepository;
 import com.youcode.product_managementV2.repository.UserRoleRepository;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,6 +45,7 @@ public class AuthServiceImpl implements UserService {
         this.userDetailsService = userDetailsService;
         this.httpSession = httpSession;
     }
+
     @Override
     public UserResponseDto registerUser(UserRequestDto userRequestDto) {
         User user = userMapper.toEntity(userRequestDto);
@@ -64,14 +67,11 @@ public class AuthServiceImpl implements UserService {
     @Override
     public UserResponseDto login(UserRequestDto userRequestDto) {
         try {
-            // Create authentication token with username and password from the request
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userRequestDto.getLogin(), userRequestDto.getPassword());
 
-            // Authenticate the user using authentication manager
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-            // Set the authentication in the security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(userRequestDto.getLogin());
@@ -84,7 +84,7 @@ public class AuthServiceImpl implements UserService {
 
             log.info("User logged in successfully: {}", sessionId);
 
-            System.out.println("User logged in successfully: {"+sessionId+"}");
+            System.out.println("User logged in successfully: {" + sessionId + "}");
 
             UserResponseDto userResponseDto = userMapper.toResponseDto(user);
             userResponseDto.setSessionId(sessionId);
@@ -104,5 +104,32 @@ public class AuthServiceImpl implements UserService {
         return userMapper.toResponseDto(user);
     }
 
+    @Override
+    public List<UserResponseDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toResponseDto)
+                .toList();
+    }
 
+    @Override
+    public UserResponseDto updateUserRole(Long userId, UserRoleUpdateDto userRoleUpdateDto) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        UserRole role = userRoleRepository.findById(userRoleUpdateDto.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        user.setRole(role);
+
+
+        User updatedUser = userRepository.save(user);
+
+        return UserMapper.INSTANCE.toResponseDto(updatedUser);
+    }
 }
+
+
+
