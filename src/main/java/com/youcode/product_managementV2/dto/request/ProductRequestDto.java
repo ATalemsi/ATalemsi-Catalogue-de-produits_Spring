@@ -1,5 +1,6 @@
 package com.youcode.product_managementV2.dto.request;
 
+import com.youcode.product_managementV2.Entity.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -21,4 +22,8 @@ public class ProductRequestDto {
     @NotNull(message = "La quantité vendue est obligatoire.")
     @Positive(message = "La quantité vendue doit être un nombre positif.")
     private Integer quantite;
+
+
+    @NotNull(message = "categorie not be null")
+    private Long categoryId;
 }

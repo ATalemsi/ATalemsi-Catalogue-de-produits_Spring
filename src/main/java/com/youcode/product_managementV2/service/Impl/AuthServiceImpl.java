@@ -80,6 +80,7 @@ public class AuthServiceImpl implements UserService {
                     .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + userRequestDto.getLogin()));
 
             String sessionId = httpSession.getId();
+            httpSession.setAttribute("user_id", user.getId());
             httpSession.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             log.info("User logged in successfully: {}", sessionId);

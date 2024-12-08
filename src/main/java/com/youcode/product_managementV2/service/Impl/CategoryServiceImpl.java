@@ -66,8 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        // Map updated fields using the mapper (or manually set them if partial updates)
-        categoryMapper.updateCategoryFromDto(categoryDto, category); // Assuming a method in the mapper
+        categoryMapper.updateCategoryFromDto(categoryDto, category);
 
         categoryRepository.save(category);
 
