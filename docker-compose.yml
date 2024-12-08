@@ -62,11 +62,30 @@ services:
     depends_on:
       - dev-db
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8082:8080"  # Access Jenkins at http://localhost:8082
+      - "50000:50000" # Jenkins agent connection
+    volumes:
+      - jenkins_home:/var/jenkins_home  # Persist Jenkins data
+      - /var/run/docker.sock:/var/run/docker.sock  # Allow Jenkins to use Docker
+    environment:
+      - JAVA_OPTS=-Duser.home=/var/jenkins_home
+    networks:
+      - app-network
+    depends_on:
+      - app  # Ensure Jenkins waits for the app to be ready
+
 volumes:
   dev-db-data:
     driver: local  # Volume for persistent storage for dev-db
   prod-db-data:
     driver: local  # Volume for persistent storage for prod-db
+  jenkins_home:
+    driver: local
+
 
 networks:
   app-network:
