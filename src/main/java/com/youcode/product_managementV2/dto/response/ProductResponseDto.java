@@ -17,8 +17,6 @@ public class ProductResponseDto {
 
     private Integer quantite;
 
-    private Category category;
-
     private String categoryName;
 
     private User user;
@@ -30,7 +28,7 @@ public class ProductResponseDto {
                 .designation(product.getDesignation())
                 .prix(product.getPrix())
                 .quantite(product.getQuantite())
-                .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)  // Extract category name
+                .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
                 .build();
     }
 }

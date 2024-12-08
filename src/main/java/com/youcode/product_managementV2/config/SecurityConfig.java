@@ -92,7 +92,6 @@ public class SecurityConfig {
         return new SimpleUrlLogoutSuccessHandler() {
             @Override
             public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                log.info("Logout successful for user: {}", (authentication != null ? authentication.getName() : "Anonymous"));
                 super.onLogoutSuccess(request, response, authentication);
             }
         };

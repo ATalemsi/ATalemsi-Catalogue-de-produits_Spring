@@ -20,4 +20,9 @@ public class UserRole {
     private Long id;
 
     private String roleName;
+
+
+    public String getRoleName() {
+        return roleName;
+    }
 }

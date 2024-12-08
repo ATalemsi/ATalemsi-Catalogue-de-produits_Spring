@@ -42,10 +42,8 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Map the `roleName` to GrantedAuthority
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+        return List.of(new SimpleGrantedAuthority(role.getRoleName()));
     }
-
     @Override
     public String getUsername() {
         return login;

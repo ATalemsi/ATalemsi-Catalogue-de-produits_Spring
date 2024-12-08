@@ -10,7 +10,6 @@ import com.youcode.product_managementV2.mapper.ProductMapper;
 import com.youcode.product_managementV2.repository.CategoryRepository;
 import com.youcode.product_managementV2.repository.ProductRepository;
 import com.youcode.product_managementV2.repository.UserRepository;
-import com.youcode.product_managementV2.service.Interface.CategoryService;
 import com.youcode.product_managementV2.service.Interface.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
                 sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
         );
         return productRepository.findAll(pageable)
-                .map(productMapper::toDto);
+                .map(ProductResponseDto::fromProduct);
     }
 
     @Override
@@ -55,14 +54,14 @@ public class ProductServiceImpl implements ProductService {
                 sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
         );
         return productRepository.findByDesignationContainingIgnoreCase(designation, pageable)
-                .map(productMapper::toDto);
+                .map(ProductResponseDto::fromProduct);
     }
 
     @Override
     public Page<ProductResponseDto> getProductsByCategory(Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findByCategoryId(categoryId, pageable)
-                .map(productMapper::toDto);
+                .map(ProductResponseDto::fromProduct);
     }
 
     @Override
@@ -72,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
                 sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
         );
         return productRepository.findByCategoryId(categoryId, pageable)
-                .map(productMapper::toDto);
+                .map(ProductResponseDto::fromProduct);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
 
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        Long userId = (Long) request.getSession().getAttribute("user_id");  // Assuming the user_id is stored in the session
+        Long userId = (Long) request.getSession().getAttribute("user_id");
 
         if (userId == null) {
             throw new RuntimeException("User not found in session");

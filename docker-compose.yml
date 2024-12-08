@@ -26,6 +26,11 @@ services:
       - dev-db-data:/var/lib/mysql  # Corrected volume mapping
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot_password || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Production DB service
   prod-db:
