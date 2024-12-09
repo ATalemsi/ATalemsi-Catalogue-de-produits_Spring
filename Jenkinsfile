@@ -1,8 +1,8 @@
 pipeline {
-    agent any  // Runs on any available agent
+    agent any
 
     environment {
-        SPRING_PROFILES_ACTIVE = 'dev'  // Ensures the correct Spring profile is active
+        SPRING_PROFILES_ACTIVE = 'dev'
     }
 
     stages {
@@ -35,24 +35,24 @@ pipeline {
                         echo "Docker is not installed. Installing..."
                         
                         # Update package list
-                        sudo apt-get update -y
+                        apt-get update -y
 
                         # Install required dependencies
-                        sudo apt-get install -y \
+                        apt-get install -y \
                             apt-transport-https \
                             ca-certificates \
                             curl \
                             software-properties-common
 
                         # Add Docker's official GPG key
-                        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+                        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
                         # Set up the stable Docker repository
-                        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
                         # Install Docker
-                        sudo apt-get update -y
-                        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+                        apt-get update -y
+                        apt-get install -y docker-ce docker-ce-cli containerd.io
 
                         # Verify Docker installation
                         docker --version
