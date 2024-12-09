@@ -1,35 +1,65 @@
 pipeline {
-    agent any  // Runs on any available agent (e.g., Docker, or the Jenkins server itself)
+    agent any  // Runs on any available agent
 
     environment {
-        SPRING_PROFILES_ACTIVE = 'dev'  // This ensures the correct Spring profile is active
+        SPRING_PROFILES_ACTIVE = 'dev'  // Ensures the correct Spring profile is active
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the latest code from the Git repository
-                checkout scm
+                script {
+                    echo "Checking out the latest code"
+                    checkout scm
+                }
             }
         }
         
         stage('Build') {
             steps {
-                // Build the Spring Boot project using Maven
                 script {
-                    echo "Building the project with Maven"
+                    echo "Building the Spring Boot project with Maven"
                     sh 'chmod +x ./mvnw'
-                    sh './mvnw clean install -DskipTests'  // Run Maven wrapper to build the project
+                    sh './mvnw clean install -DskipTests'
                 }
             }
         }
         
-        stage('Test') {
+        stage('Install Docker if Missing') {
             steps {
-                // Run tests (unit/integration tests) using Maven
                 script {
-                    echo "Running tests"
-                    sh './mvnw test'  // Run tests using Maven
+                    echo "Checking and installing Docker if not present"
+
+                    sh '''
+                    if ! command -v docker &> /dev/null; then
+                        echo "Docker is not installed. Installing..."
+                        
+                        # Update package list
+                        sudo apt-get update -y
+
+                        # Install required dependencies
+                        sudo apt-get install -y \
+                            apt-transport-https \
+                            ca-certificates \
+                            curl \
+                            software-properties-common
+
+                        # Add Docker's official GPG key
+                        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+                        # Set up the stable Docker repository
+                        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+                        # Install Docker
+                        sudo apt-get update -y
+                        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+                        # Verify Docker installation
+                        docker --version
+                    else
+                        echo "Docker is already installed."
+                    fi
+                    '''
                 }
             }
         }
@@ -37,9 +67,8 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    // Build Docker image for the app
-                    echo "Building Docker image"
-                    sh 'docker build -t product_managementV2:latest .'  // Replace 'my-app' with your app name
+                    echo "Building Docker image for the application"
+                    sh 'docker build -t product_managementV2:latest .'
                 }
             }
         }
@@ -47,19 +76,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Deploy the app using Docker Compose
-                    echo "Deploying the app"
-                    sh 'docker-compose -f docker-compose.yml up -d'  // Deploy using Docker Compose
-                }
-            }
-        }
-        
-        stage('Clean Up') {
-            steps {
-                script {
-                    // Clean up by stopping the containers after deployment (optional)
-                    echo "Cleaning up"
-                    sh 'docker-compose -f docker-compose.yml down'  // Optional step to stop containers
+                    echo "Deploying the application using Docker Compose"
+                    sh 'docker-compose -f docker-compose.yml up -d'
                 }
             }
         }
@@ -67,16 +85,20 @@ pipeline {
 
     post {
         always {
-            // Always clean up workspace
-            cleanWs()
+            script {
+                echo "Cleaning up workspace"
+                cleanWs()
+            }
         }
         success {
-            // Send a success notification (you can use email or Slack)
-            echo "Build completed successfully!"
+            script {
+                echo "Build and deployment completed successfully!"
+            }
         }
         failure {
-            // Send failure notification
-            echo "Build failed!"
+            script {
+                echo "Build or deployment failed!"
+            }
         }
     }
 }
