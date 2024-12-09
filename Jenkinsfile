@@ -1,13 +1,8 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:20.10.21' // Replace with a Docker image that includes Docker
-            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any  // This sets the default agent to any available node
 
     environment {
-        SPRING_PROFILES_ACTIVE = 'dev'
+        SPRING_PROFILES_ACTIVE = 'dev'  // This ensures the correct Spring profile is active
     }
 
     stages {
@@ -29,8 +24,14 @@ pipeline {
                 }
             }
         }
-            
+        
         stage('Dockerize') {
+            agent {
+                docker {
+                    image 'docker:20.10.21' // Docker image that includes Docker
+                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 script {
                     echo "Building Docker image for the application"
