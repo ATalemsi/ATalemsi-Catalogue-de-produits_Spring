@@ -38,7 +38,7 @@ pipeline {
                 script {
                     // Build Docker image for the app
                     echo "Building Docker image"
-                    sh 'docker build -t my-app:latest .'  // Replace 'my-app' with your app name
+                    sh 'docker build -t product_managementV2:latest .'  // Replace 'my-app' with your app name
                 }
             }
         }
