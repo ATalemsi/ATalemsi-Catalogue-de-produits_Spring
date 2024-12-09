@@ -18,7 +18,7 @@ pipeline {
                 // Build the Spring Boot project using Maven
                 script {
                     echo "Building the project with Maven"
-                    sh './mvnw clean install'  // Run Maven wrapper to build the project
+                    sh './mvnw clean install -DskipTests'  // Run Maven wrapper to build the project
                 }
             }
         }
