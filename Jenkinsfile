@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:20.10.21' // Replace with a Docker image that includes Docker
+            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         SPRING_PROFILES_ACTIVE = 'dev'
@@ -24,46 +29,7 @@ pipeline {
                 }
             }
         }
-        
-        stage('Install Docker if Missing') {
-            steps {
-                script {
-                    echo "Checking and installing Docker if not present"
-
-                    sh '''
-                    if ! command -v docker &> /dev/null; then
-                        echo "Docker is not installed. Installing..."
-                        
-                        # Update package list
-                        apt-get update -y
-
-                        # Install required dependencies
-                        apt-get install -y \
-                            apt-transport-https \
-                            ca-certificates \
-                            curl \
-                            software-properties-common
-
-                        # Add Docker's official GPG key
-                        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-                        # Set up the stable Docker repository
-                        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
-
-                        # Install Docker
-                        apt-get update -y
-                        apt-get install -y docker-ce docker-ce-cli containerd.io
-
-                        # Verify Docker installation
-                        docker --version
-                    else
-                        echo "Docker is already installed."
-                    fi
-                    '''
-                }
-            }
-        }
-        
+            
         stage('Dockerize') {
             steps {
                 script {
